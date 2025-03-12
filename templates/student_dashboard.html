@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('{{ url_for("static", filename="background.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: white;
+            color: #34e89e;
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            margin: 100px auto 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .profile-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .profile-picture-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            cursor: pointer;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #34e89e;
+        }
+
+        .edit-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .edit-overlay i {
+            color: white;
+            font-size: 24px;
+        }
+
+        .profile-picture-container:hover .edit-overlay {
+            opacity: 1;
+        }
+
+        .profile-section p {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Edit Profile Form */
+        .edit-profile-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .edit-profile-form input,
+        .edit-profile-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .edit-profile-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #34e89e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-profile-form button:hover {
+            background-color: #0f8b8d;
+        }
+
+        /* Profile Picture Upload */
+        .profile-upload {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .profile-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 75px;
+            margin: 10px auto;
+            border: 3px solid #34e89e;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-preview input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-label {
+            color: #666;
+            margin-top: 10px;
+            display: block;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        // Function to show and hide modals
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            var modals = document.getElementsByClassName('modal');
+            for (var i = 0; i < modals.length; i++) {
+                if (event.target == modals[i]) {
+                    modals[i].style.display = "none";
+                }
+            }
+        }
+
+        // Function to preview image before upload
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-image').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Student Dashboard</h1>
+        <div class="nav-links">
+            <a href="#" onclick="showModal('announcements-modal')">Announcements</a>
+            <a href="#" onclick="showModal('lab-rules-modal')">Lab Rules</a>
+            <a href="#" onclick="showModal('edit-profile-modal')">Edit Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="profile-section">
+            <h2>Personal Information</h2>
+            <div class="profile-picture-container" onclick="showModal('edit-profile-modal')">
+                {% if current_user.profile_picture_blob %}
+                    <img src="data:image/jpeg;base64,{{ current_user.profile_picture_blob }}" alt="Profile Picture" class="profile-picture">
+                {% else %}
+                    <img src="{{ url_for('static', filename='profile_pictures/' + current_user.profile_picture) }}" alt="Profile Picture" class="profile-picture">
+                {% endif %}
+                <div class="edit-overlay">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <p><strong>ID:</strong> {{ current_user.id }}</p>
+            <p><strong>First Name:</strong> {{ current_user.firstname }}</p>
+            <p><strong>Last Name:</strong> {{ current_user.lastname }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>Course:</strong> {{ current_user.course }}</p>
+            <p><strong>Level:</strong> {{ current_user.level }}</p>
+            <p><strong>Session:</strong> {{ current_user.session }}</p>
+        </div>
+    </div>
+
+    <!-- Announcements Modal -->
+    <div id="announcements-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('announcements-modal')">&times;</span>
+            <h2>Announcements</h2>
+            <a href="#" class="announcement-link">Announcement 1</a>
+        </div>
+    </div>
+
+    <!-- Lab Rules Modal -->
+    <div id="lab-rules-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('lab-rules-modal')">&times;</span>
+            <h1>University of Cebu</h1>
+            <h2>College of Information & Computer Studies</h2>
+            <h3>Laboratory Rules and Regulations</h3>
+            <p>To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
+            <ul>
+                <li>Maintain silence, proper decorum, and discipline inside the laboratory. Mobile phones, walkmans, and other personal pieces of equipment must be switched off.</li>
+                <li>Games are not allowed inside the lab. This includes computer-related games, card games, and other games that may disturb the operation of the lab.</li>
+                <li>Surfing the Internet is allowed only with the permission of the instructor. Downloading and installing software are strictly prohibited.</li>
+                <li>Getting access to other websites not related to the course (especially pornographic and illicit sites) is strictly prohibited.</li>
+                <li>Deleting computer files and changing the set-up of the computer is a major offense.</li>
+                <li>Observe computer time usage carefully. A fifteen-minute allowance is given for each use. Otherwise, the unit will be given to those who wish to "sit-in".</li>
+                <li>Observe proper decorum while inside the laboratory:
+                    <ul>
+                        <li>Do not get inside the lab unless the instructor is present.</li>
+                        <li>All bags, knapsacks, and the like must be deposited at the counter.</li>
+                        <li>Follow the seating arrangement of your instructor.</li>
+                        <li>At the end of class, all software programs must be closed.</li>
+                        <li>Return all chairs to their proper places after using.</li>
+                    </ul>
+                </li>
+                <li>Chewing gum, eating, drinking, smoking, and other forms of vandalism are prohibited inside the lab.</li>
+                <li>Anyone causing a continual disturbance will be asked to leave the lab. Acts or gestures offensive to the members of the community, including public display of physical intimacy, are not tolerated.</li>
+                <li>Persons exhibiting hostile or threatening behavior such as yelling, swearing, or disregarding requests made by lab personnel will be asked to leave the lab.</li>
+                <li>For serious offenses, the lab personnel may call the Civil Security Office (CSU) for assistance.</li>
+                <li>Any technical problem or difficulty must be addressed to the laboratory supervisor, student assistant, or instructor immediately.</li>
+            </ul>
+            <h3>Disciplinary Action</h3>
+            <ul>
+                <li><strong>First Offense</strong> - The Head or the Dean or OIC recommends to the Guidance Center for a suspension from classes for each offender.</li>
+                <li><strong>Second and Subsequent Offenses</strong> - A recommendation for a heavier sanction will be endorsed to the Guidance Center.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
+            <h2>Edit Profile</h2>
+            <form action="{{ url_for('edit_info') }}" method="POST" class="edit-profile-form" enctype="multipart/form-data">
+                <div class="profile-upload">
+                    <div class="profile-preview">
+                        {% if current_user.profile_picture_blob %}
+                            <img id="preview-image" src="data:image/jpeg;base64,{{ current_user.profile_picture_blob }}" alt="Profile Preview">
+                        {% else %}
+                            <img id="preview-image" src="{{ url_for('static', filename='profile_pictures/' + current_user.profile_picture) }}" alt="Profile Preview">
+                        {% endif %}
+                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*" onchange="previewImage(this)">
+                    </div>
+                    <label class="upload-label">Click to upload new profile picture</label>
+                </div>
+
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="firstname" value="{{ current_user.firstname }}" required>
+
+                <label for="lastname">Last Name:</label>
+                <input type="text" id="lastname" name="lastname" value="{{ current_user.lastname }}" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+
+                <label for="course">Course:</label>
+                <select id="course" name="course" required>
+                    <option value="BSIT" {% if current_user.course == 'BSIT' %}selected{% endif %}>BSIT</option>
+                    <option value="BSCS" {% if current_user.course == 'BSCS' %}selected{% endif %}>BSCS</option>
+                    <option value="BSCRM" {% if current_user.course == 'BSCRM' %}selected{% endif %}>BSCRM</option>
+                </select>
+
+                <label for="level">Level:</label>
+                <select id="level" name="level" required>
+                    <option value="1" {% if current_user.level == '1' %}selected{% endif %}>Level 1</option>
+                    <option value="2" {% if current_user.level == '2' %}selected{% endif %}>Level 2</option>
+                    <option value="3" {% if current_user.level == '3' %}selected{% endif %}>Level 3</option>
+                    <option value="4" {% if current_user.level == '4' %}selected{% endif %}>Level 4</option>
+                </select>
+
+                <label for="password">Password (leave blank to keep current):</label>
+                <input type="password" id="password" name="password">
+
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .header .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .header .nav-links a {
+            color: #34e89e;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #34e89e;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .header .nav-links a:hover {
+            background-color: #34e89e;
+            color: white;
+        }
+        .profile-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .profile-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .profile-section p {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .profile-section form {
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-section label {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .profile-section input, .profile-section select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .profile-section button {
+            padding: 10px;
+            background-color: #34e89e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .profile-section button:hover {
+            background-color: #0f8b8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Edit Profile</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('student_dashboard') }}">Home</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+        <div class="profile-section">
+            <h2>Personal Information</h2>
+            <p><strong>ID:</strong> {{ current_user.id }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>Course:</strong> {{ current_user.course }}</p>
+            <p><strong>Level:</strong> {{ current_user.level }}</p>
+            <p><strong>Username:</strong> {{ current_user.username }}</p>
+            <form method="POST" action="{{ url_for('edit_info') }}">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" value="{{ current_user.email }}" required>
+                <label for="course">Course</label>
+                <select name="course" id="course" required>
+                    <option value="BSIT" {% if current_user.course == 'BSIT' %}selected{% endif %}>BSIT</option>
+                    <option value="BSCS" {% if current_user.course == 'BSCS' %}selected{% endif %}>BSCS</option>
+                    <option value="BSBA" {% if current_user.course == 'BSBA' %}selected{% endif %}>BSBA</option>
+                    <option value="BSAS" {% if current_user.course == 'BSAS' %}selected{% endif %}>BSAS</option>
+                    <option value="BSN" {% if current_user.course == 'BSN' %}selected{% endif %}>BSN</option>
+                    <option value="BSED" {% if current_user.course == 'BSED' %}selected{% endif %}>BSED</option>
+                    <option value="BSCSE" {% if current_user.course == 'BSCSE' %}selected{% endif %}>BSCSE</option>
+                </select>
+                <label for="level">Level</label>
+                <input type="text" name="level" id="level" value="{{ current_user.level }}" required>
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" value="{{ current_user.username }}" required>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required>
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+</body>     
+</html>
