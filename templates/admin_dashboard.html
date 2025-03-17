@@ -19,11 +19,14 @@
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--background-color);
+            overflow-x: hidden;
         }
 
         .dashboard-container {
             display: flex;
             min-height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
 
         /* Sidebar Styles */
@@ -36,25 +39,31 @@
             height: 100vh;
             overflow-y: auto;
             transition: width 0.3s ease;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar:hover {
-            width: 280px;
+            width: var(--sidebar-width);
         }
 
         .sidebar-header {
             text-align: center;
             padding: 20px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
         }
 
         .sidebar-header img {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border: 3px solid white;
             transition: transform 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-header img:hover {
@@ -78,23 +87,26 @@
         }
 
         .nav-menu {
-            margin-top: 30px;
+            margin-top: 20px;
+            padding: 0 10px;
         }
 
         .nav-item {
             padding: 12px 20px;
-            margin: 5px 0;
+            margin: 8px 0;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            color: white;
         }
 
         .nav-item i {
-            margin-right: 10px;
+            margin-right: 15px;
             width: 20px;
             text-align: center;
+            font-size: 18px;
         }
 
         .nav-item:hover {
@@ -104,57 +116,133 @@
 
         .nav-item.active {
             background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
         }
 
         /* Main Content Styles */
         .main-content {
+            flex: 1;
             margin-left: var(--sidebar-width);
-            padding: 20px;
-            width: calc(100% - var(--sidebar-width));
+            padding: 30px;
+            min-height: 100vh;
+            background-color: var(--background-color);
             transition: margin-left 0.3s ease;
+            width: calc(100% - var(--sidebar-width));
+            box-sizing: border-box;
         }
 
-        .dashboard-header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+        .content-container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 0;
             animation: fadeIn 0.5s ease-out forwards;
         }
 
+        .section-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 40px;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .section-content {
+            padding: 35px 40px;
+        }
+
+        /* Search Bar Styles */
         .search-bar {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background-color: white;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .search-bar input {
-            width: 100%;
-            padding: 10px;
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
             border: 2px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
 
-        .search-bar button {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 232, 158, 0.1);
+            outline: none;
         }
 
-        .search-bar button:hover {
+        .search-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-button, .clear-button {
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+
+        .search-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .search-button:hover {
             background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .clear-button {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .clear-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        /* Welcome Message Style */
+        .welcome-message {
+            font-size: 18px;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
         }
 
         .student-info {
@@ -164,6 +252,9 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             animation: fadeIn 0.5s ease-out forwards;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .student-info h3 {
@@ -197,6 +288,9 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.5s ease-out forwards;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .ongoing-sessions h3 {
@@ -246,6 +340,9 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .stat-card {
@@ -280,6 +377,9 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.5s ease-out forwards;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .activity-header {
@@ -333,6 +433,15 @@
                 padding: 10px;
             }
 
+            .sidebar:hover {
+                width: var(--sidebar-width);
+            }
+
+            .main-content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+
             .sidebar-header img {
                 width: 40px;
                 height: 40px;
@@ -342,9 +451,9 @@
                 display: none;
             }
 
-            .main-content {
-                margin-left: 70px;
-                width: calc(100% - 70px);
+            .sidebar:hover .admin-info,
+            .sidebar:hover .nav-item span {
+                display: block;
             }
 
             .nav-item {
@@ -354,6 +463,19 @@
 
             .nav-item i {
                 margin: 0;
+            }
+
+            .sidebar:hover .nav-item {
+                padding: 12px 20px;
+                justify-content: flex-start;
+            }
+
+            .sidebar:hover .nav-item i {
+                margin-right: 15px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -368,23 +490,32 @@
 
         .sit-in-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .sit-in-table th, .sit-in-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 0;
         }
 
         .sit-in-table th {
             background-color: var(--primary-color);
             color: white;
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
         }
 
-        .sit-in-table tr:hover {
-            background-color: #f5f5f5;
+        .sit-in-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        .sit-in-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sit-in-table tr:hover td {
+            background-color: #f8f9fa;
         }
 
         .action-button {
@@ -444,6 +575,8 @@
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+            width: 100%;
         }
 
         .tab-content.active {
@@ -458,9 +591,9 @@
         }
 
         .export-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 15px;
+            border-radius: 8px;
             cursor: pointer;
             background-color: var(--primary-color);
             color: white;
@@ -478,29 +611,66 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .feedback-list, .statistics-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
         }
 
         .feedback-item, .statistics-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 25px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
 
         .feedback-item:hover, .statistics-item:hover {
-            background-color: #f8f9fa;
+            background-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .feedback-item:last-child, .statistics-item:last-child {
-            border-bottom: none;
+        .feedback-item span:first-child, .statistics-item span:first-child {
+            font-size: 18px;
+            color: var(--text-color);
+            flex: 1;
+        }
+
+        .feedback-item span:last-child, .statistics-item span:last-child {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .feedback-content, .statistics-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-list, .statistics-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .feedback-item, .statistics-item {
+                padding: 20px;
+                font-size: 14px;
+            }
         }
 
         /* Announcement Styles */
@@ -513,15 +683,27 @@
         }
 
         .announcement-form textarea {
+            padding: 20px;
+            font-size: 16px;
+            min-height: 150px;
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            resize: vertical;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .announcement-form textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 232, 158, 0.1);
         }
 
         .announcement-form button {
-            padding: 10px 20px;
+            padding: 15px 30px;
+            font-size: 16px;
             background-color: var(--primary-color);
             color: white;
             border: none;
@@ -536,12 +718,12 @@
 
         /* Form Styles */
         .form-select {
-            width: 200px;
-            padding: 8px;
+            width: 250px;
+            padding: 12px;
+            font-size: 15px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin: 5px 0;
-            font-size: 14px;
         }
 
         .student-info {
@@ -578,6 +760,152 @@
             margin-top: 15px;
             padding: 10px 30px;
             font-size: 16px;
+        }
+
+        /* Student Profile Styles */
+        .student-profile {
+            padding: 25px;
+            margin-bottom: 35px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .profile-image-container {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-details {
+            flex-grow: 1;
+        }
+
+        .student-details p {
+            font-size: 16px;
+            margin: 12px 0;
+        }
+
+        .student-details p strong {
+            display: inline-block;
+            width: 100px;
+            color: var(--secondary-color);
+        }
+
+        /* Add smooth scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Add these container styles after the main-content styles */
+        .content-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .section-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-button {
+            padding: 12px 25px;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .export-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 10px;
+            }
+
+            .section-header {
+                padding: 20px;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+        }
+
+        /* Section Header with Action Buttons */
+        .section-header-with-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .section-header-with-actions h2 {
+            margin: 0;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 15px;
         }
     </style>
 </head>
@@ -630,114 +958,192 @@
         <div class="main-content">
             <!-- Dashboard Tab -->
             <div id="dashboard" class="tab-content active">
-                <div class="dashboard-header">
-                    <h1>Welcome, {{ current_user.firstname }}!</h1>
-                    <p>Here's what's happening in your system today</p>
-                </div>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <h2>Welcome, {{ current_user.firstname }}!</h2>
+                        </div>
+                        <div class="section-content">
+                            <h2 class="welcome-message">Student Search</h2>
+                            <br>
+                            
+                            <div class="search-bar">
+                                <input type="text" id="search-student" placeholder="Search student by ID" onkeypress="if(event.key === 'Enter') searchStudent()">
+                                <div class="search-buttons">
+                                    <button onclick="searchStudent()" class="search-button">Search</button>
+                                    <button onclick="clearSearch()" class="clear-button">Clear</button>
+                                </div>
+                            </div>
 
-                <div class="search-bar">
-                    <input type="text" id="search-student" placeholder="Search student by ID">
-                    <button onclick="searchStudent()">Search</button>
-                </div>
-
-                <div class="student-info" id="student-info" style="display: none;">
-                    <h3>Sit In Form</h3>
-                    <div class="sit-in-form">
-                        <p><strong>ID Number:</strong> <span id="student-id"></span></p>
-                        <p><strong>Student Name:</strong> <span id="student-name"></span></p>
-                        <p><strong>Purpose:</strong> <select id="purpose" class="form-select">
-                            <option value="">Select Purpose</option>
-                            <option value="Programming">Programming</option>
-                            <option value="Research">Research</option>
-                            <option value="Assignment">Assignment</option>
-                            <option value="Project">Project</option>
-                            <option value="Others">Others</option>
-                        </select></p>
-                        <p><strong>Lab:</strong> <select id="lab" class="form-select">
-                            <option value="">Select Lab</option>
-                            <option value="MAC Lab">MAC Lab</option>
-                            <option value="Windows Lab">Windows Lab</option>
-                        </select></p>
-                        <p><strong>Remaining Session:</strong> <span id="remaining-session">25</span></p>
-                        <button onclick="startSitIn()" class="action-button">Sit In</button>
+                            <div class="student-info" id="student-info" style="display: none;">
+                                <h3>Student Information</h3>
+                                <div class="student-profile">
+                                    <div class="profile-image-container">
+                                        <img id="student-profile-image" src="{{ url_for('static', filename='profile_pictures/default_profile.jpg') }}" alt="Student Profile">
+                                    </div>
+                                    <div class="student-details">
+                                        <p><strong>ID Number:</strong> <span id="student-id"></span></p>
+                                        <p><strong>Name:</strong> <span id="student-name"></span></p>
+                                        <p><strong>Email:</strong> <span id="student-email"></span></p>
+                                        <p><strong>Course:</strong> <span id="student-course"></span></p>
+                                        <p><strong>Level:</strong> <span id="student-level"></span></p>
+                                    </div>
+                                </div>
+                                
+                                <h3>Sit In Form</h3>
+                                <div class="sit-in-form">
+                                    <p><strong>Purpose:</strong> <select id="purpose" class="form-select">
+                                        <option value="">Select Purpose</option>
+                                        <option value="Programming">Programming</option>
+                                        <option value="Research">Research</option>
+                                        <option value="Assignment">Assignment</option>
+                                        <option value="Project">Project</option>
+                                        <option value="Others">Others</option>
+                                    </select></p>
+                                    <p><strong>Lab:</strong> <select id="lab" class="form-select">
+                                        <option value="">Select Lab</option>
+                                        <option value="MAC Lab">MAC Lab</option>
+                                        <option value="Windows Lab">Windows Lab</option>
+                                    </select></p>
+                                    <p><strong>PC Number:</strong> <select id="pc-number" class="form-select">
+                                        <option value="">Select PC</option>
+                                        <option value="PC01">PC01</option>
+                                        <option value="PC02">PC02</option>
+                                        <option value="PC03">PC03</option>
+                                        <option value="PC04">PC04</option>
+                                        <option value="PC05">PC05</option>
+                                        <option value="PC06">PC06</option>
+                                        <option value="PC07">PC07</option>
+                                        <option value="PC08">PC08</option>
+                                        <option value="PC09">PC09</option>
+                                        <option value="PC10">PC10</option>
+                                    </select></p>
+                                    <p><strong>Time Limit (minutes):</strong> <input type="number" id="time-limit" min="15" max="180" value="60" class="form-select"></p>
+                                    <button onclick="startSitIn()" class="action-button">Start Sit-In Session</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Active Sit-ins Tab -->
             <div id="active-sitins" class="tab-content">
-                <div class="sit-in-section">
-                    <h2>Active Sit-in Sessions</h2>
-                    <div class="export-buttons">
-                        <button class="export-button" onclick="exportData('pdf')">Export to PDF</button>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <div class="section-header-with-actions">
+                                <h2>Active Sit-in Sessions</h2>
+                                <div class="section-actions">
+                                    <button class="export-button" onclick="exportData('pdf')">Export to PDF</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <table class="sit-in-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>PC Number</th>
+                                        <th>Lab</th>
+                                        <th>Purpose</th>
+                                        <th>Start Time</th>
+                                        <th>Elapsed Time</th>
+                                        <th>Time Limit</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="active-sitins-table">
+                                    <!-- Active sit-ins will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <table class="sit-in-table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Start Time</th>
-                                <th>Time Limit</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="active-sitins-table">
-                            <!-- Active sit-ins will be dynamically added here -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
             <!-- Sit-in Records Tab -->
             <div id="sitin-records" class="tab-content">
-                <div class="sit-in-section">
-                    <h2>Today's Sit-in Records</h2>
-                    <div class="export-buttons">
-                        <button class="export-button" onclick="exportData('pdf')">Export to PDF</button>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <div class="section-header-with-actions">
+                                <h2>Today's Sit-in Records</h2>
+                                <div class="section-actions">
+                                    <button class="export-button" onclick="exportData('pdf')">Export to PDF</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <table class="sit-in-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>PC Number</th>
+                                        <th>Lab</th>
+                                        <th>Purpose</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sitin-records-table">
+                                    <!-- Sit-in records will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <table class="sit-in-table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Duration</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sitin-records-table">
-                            <!-- Sit-in records will be dynamically added here -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
             <!-- Feedback Tab -->
             <div id="feedback" class="tab-content">
-                <div class="feedback-section">
-                    <h2>Feedback</h2>
-                    <ul class="feedback-list" id="feedback-list">
-                        <!-- Feedback items will be dynamically added here -->
-                    </ul>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <h2>Student Feedback</h2>
+                        </div>
+                        <div class="section-content">
+                            <ul class="feedback-list" id="feedback-list">
+                                <!-- Feedback items will be dynamically added here -->
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Statistics Tab -->
             <div id="statistics" class="tab-content">
-                <div class="statistics-section">
-                    <h2>Statistics</h2>
-                    <ul class="statistics-list" id="statistics-list">
-                        <!-- Statistics items will be dynamically added here -->
-                    </ul>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <h2>System Statistics</h2>
+                        </div>
+                        <div class="section-content">
+                            <ul class="statistics-list" id="statistics-list">
+                                <!-- Statistics items will be dynamically added here -->
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Announcements Tab -->
             <div id="announcements" class="tab-content">
-                <div class="announcement-form">
-                    <h2>Create Announcement</h2>
-                    <textarea id="announcement-text" rows="4" placeholder="Write your announcement here..."></textarea>
-                    <button onclick="createAnnouncement()">Post Announcement</button>
+                <div class="content-container">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <h2>Create Announcement</h2>
+                        </div>
+                        <div class="section-content">
+                            <div class="announcement-form">
+                                <textarea id="announcement-text" rows="4" placeholder="Write your announcement here..."></textarea>
+                                <button onclick="createAnnouncement()">Post Announcement</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -762,14 +1168,35 @@
         // Student Search
         async function searchStudent() {
             const studentId = document.getElementById('search-student').value;
+            if (!studentId) {
+                alert('Please enter a student ID');
+                return;
+            }
+            
             try {
                 const response = await fetch(`/search_student/${studentId}`);
                 const data = await response.json();
                 
                 if (data.success) {
                     document.getElementById('student-info').style.display = 'block';
+                    
+                    // Update student information
                     document.getElementById('student-id').textContent = data.student.id;
-                    document.getElementById('student-name').textContent = `${data.student.firstname} ${data.student.lastname}`;
+                    document.getElementById('student-name').textContent = `${data.student.firstname} ${data.student.middlename ? data.student.middlename + ' ' : ''}${data.student.lastname}`;
+                    document.getElementById('student-email').textContent = data.student.email;
+                    document.getElementById('student-course').textContent = data.student.course;
+                    document.getElementById('student-level').textContent = data.student.level;
+                    
+                    // Update profile image
+                    const profileImage = document.getElementById('student-profile-image');
+                    if (data.student.profile_picture_blob) {
+                        profileImage.src = `data:image/jpeg;base64,${data.student.profile_picture_blob}`;
+                    } else {
+                        profileImage.src = `{{ url_for('static', filename='profile_pictures/') }}${data.student.profile_picture}`;
+                    }
+                    
+                    // Scroll to the student info section
+                    document.getElementById('student-info').scrollIntoView({ behavior: 'smooth' });
                 } else {
                     alert('Student not found');
                 }
@@ -784,9 +1211,11 @@
             const studentId = document.getElementById('student-id').textContent;
             const purpose = document.getElementById('purpose').value;
             const lab = document.getElementById('lab').value;
+            const pcNumber = document.getElementById('pc-number').value;
+            const timeLimit = document.getElementById('time-limit').value;
 
-            if (!purpose || !lab) {
-                alert('Please select purpose and lab');
+            if (!purpose || !lab || !pcNumber || !timeLimit) {
+                alert('Please fill in all fields');
                 return;
             }
 
@@ -799,7 +1228,9 @@
                     body: JSON.stringify({
                         student_id: studentId,
                         purpose: purpose,
-                        lab: lab
+                        lab: lab,
+                        pc_number: pcNumber,
+                        time_limit: timeLimit
                     })
                 });
 
@@ -859,8 +1290,12 @@
                     row.innerHTML = `
                         <td>${sitin.student_id}</td>
                         <td>${sitin.student_name}</td>
+                        <td>${sitin.pc_number}</td>
+                        <td>${sitin.lab}</td>
+                        <td>${sitin.purpose}</td>
                         <td>${sitin.start_time}</td>
-                        <td>${sitin.time_limit}</td>
+                        <td>${sitin.elapsed_time}</td>
+                        <td>${sitin.time_limit} min</td>
                         <td>
                             <button onclick="endSitIn('${sitin.student_id}')" class="action-button logout-button">
                                 End Session
@@ -888,6 +1323,9 @@
                     row.innerHTML = `
                         <td>${record.student_id}</td>
                         <td>${record.student_name}</td>
+                        <td>${record.pc_number}</td>
+                        <td>${record.lab}</td>
+                        <td>${record.purpose}</td>
                         <td>${record.start_time}</td>
                         <td>${record.end_time}</td>
                         <td>${record.duration}</td>
@@ -981,6 +1419,12 @@
                 console.error('Error:', error);
                 alert('Error posting announcement');
             }
+        }
+
+        // Clear Search
+        function clearSearch() {
+            document.getElementById('search-student').value = '';
+            document.getElementById('student-info').style.display = 'none';
         }
 
         // Initial load

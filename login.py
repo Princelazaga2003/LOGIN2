@@ -178,6 +178,7 @@ def login():
     if request.method == 'POST':
         idno = request.form['idno']
         password = request.form['password']
+        role = request.form.get('role', 'student')  # Get the selected role
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -186,7 +187,12 @@ def login():
         cursor.execute("SHOW COLUMNS FROM users LIKE 'PROFILE_PICTURE_BLOB'")
         blob_column_exists = cursor.fetchone() is not None
         
-        cursor.execute("SELECT * FROM USERS WHERE IDNO = %s", (idno,))
+        # Modify query based on role
+        if role == 'admin':
+            cursor.execute("SELECT * FROM USERS WHERE IDNO = %s AND USER_TYPE = 'STAFF'", (idno,))
+        else:
+            cursor.execute("SELECT * FROM USERS WHERE IDNO = %s AND USER_TYPE = 'STUDENT'", (idno,))
+            
         user_data = cursor.fetchone()
         connection.close()
 
@@ -214,7 +220,10 @@ def login():
             else:
                 return redirect(url_for('student_dashboard'))
         else:
-            flash('Invalid ID number or password.', 'danger')
+            if role == 'admin':
+                flash('Invalid admin credentials.', 'danger')
+            else:
+                flash('Invalid student credentials.', 'danger')
             return redirect(url_for('login'))
 
     return render_template('login.html')
@@ -388,19 +397,33 @@ def search_student(student_id):
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
+    
+    # Check if PROFILE_PICTURE_BLOB column exists
+    cursor.execute("SHOW COLUMNS FROM users LIKE 'PROFILE_PICTURE_BLOB'")
+    blob_column_exists = cursor.fetchone() is not None
+    
     cursor.execute("SELECT * FROM users WHERE idno = %s AND user_type = 'STUDENT'", (student_id,))
     student = cursor.fetchone()
     connection.close()
 
     if student:
+        # Convert BLOB to base64 string if it exists
+        profile_picture_blob = None
+        if blob_column_exists and 'PROFILE_PICTURE_BLOB' in student and student['PROFILE_PICTURE_BLOB']:
+            profile_picture_blob = base64.b64encode(student['PROFILE_PICTURE_BLOB']).decode('utf-8')
+            
         return jsonify({
             'success': True,
             'student': {
                 'id': student['IDNO'],
                 'firstname': student['FIRSTNAME'],
+                'middlename': student.get('MIDDLENAME', ''),
                 'lastname': student['LASTNAME'],
+                'email': student['EMAIL'],
                 'course': student['COURSE'],
-                'level': student['LEVEL']
+                'level': student['LEVEL'],
+                'profile_picture': student.get('PROFILE_PICTURE', 'default_profile.jpg'),
+                'profile_picture_blob': profile_picture_blob
             }
         })
     return jsonify({'success': False, 'message': 'Student not found'})
@@ -416,6 +439,11 @@ def start_sitin():
     student_id = data.get('student_id')
     pc_number = data.get('pc_number')
     time_limit = data.get('time_limit')
+    purpose = data.get('purpose')
+    lab = data.get('lab')
+
+    if not all([student_id, pc_number, time_limit, purpose, lab]):
+        return jsonify({'success': False, 'message': 'Missing required fields'}), 400
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
@@ -435,9 +463,9 @@ def start_sitin():
     try:
         # Start new sit-in session
         cursor.execute("""
-            INSERT INTO sitin_sessions (student_id, pc_number, start_time, time_limit)
-            VALUES (%s, %s, %s, %s)
-        """, (student_id, pc_number, datetime.now(), time_limit))
+            INSERT INTO sitin_sessions (student_id, pc_number, start_time, time_limit, purpose, lab)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (student_id, pc_number, datetime.now(), time_limit, purpose, lab))
         connection.commit()
         connection.close()
         return jsonify({'success': True})
@@ -500,7 +528,10 @@ def get_active_sitins():
             'student_name': f"{sitin['FIRSTNAME']} {sitin['LASTNAME']}",
             'pc_number': sitin['pc_number'],
             'start_time': sitin['start_time'].strftime('%Y-%m-%d %H:%M:%S'),
-            'time_limit': sitin['time_limit']
+            'time_limit': sitin['time_limit'],
+            'purpose': sitin.get('purpose', 'N/A'),
+            'lab': sitin.get('lab', 'N/A'),
+            'elapsed_time': str(datetime.now() - sitin['start_time']).split('.')[0]  # Format as HH:MM:SS
         } for sitin in sitins]
     })
 
@@ -533,9 +564,11 @@ def get_sitin_records():
             'student_id': record['student_id'],
             'student_name': f"{record['FIRSTNAME']} {record['LASTNAME']}",
             'pc_number': record['pc_number'],
+            'purpose': record.get('purpose', 'N/A'),
+            'lab': record.get('lab', 'N/A'),
             'start_time': record['start_time'].strftime('%Y-%m-%d %H:%M:%S'),
             'end_time': record['end_time'].strftime('%Y-%m-%d %H:%M:%S'),
-            'duration': str(record['end_time'] - record['start_time'])
+            'duration': str(record['end_time'] - record['start_time']).split('.')[0]  # Format as HH:MM:SS
         } for record in records]
     })
 
@@ -627,5 +660,67 @@ def create_announcement():
 
     return jsonify({'success': True})
 
+# Check and update database schema
+def check_and_update_schema():
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # Create feedback table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message TEXT NOT NULL,
+            date DATETIME NOT NULL,
+            student_id VARCHAR(50),
+            FOREIGN KEY (student_id) REFERENCES users(IDNO)
+        )
+    """)
+    
+    # Create sitin_sessions table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sitin_sessions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            student_id VARCHAR(50) NOT NULL,
+            pc_number VARCHAR(10) NOT NULL,
+            start_time DATETIME NOT NULL,
+            end_time DATETIME,
+            time_limit INT NOT NULL,
+            purpose VARCHAR(50),
+            lab VARCHAR(50),
+            FOREIGN KEY (student_id) REFERENCES users(IDNO)
+        )
+    """)
+    
+    # Create announcements table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            text TEXT NOT NULL,
+            date DATETIME NOT NULL,
+            staff_id VARCHAR(50),
+            FOREIGN KEY (staff_id) REFERENCES users(IDNO)
+        )
+    """)
+    
+    # Check if purpose column exists in sitin_sessions
+    cursor.execute("SHOW COLUMNS FROM sitin_sessions LIKE 'purpose'")
+    purpose_exists = cursor.fetchone() is not None
+    
+    # Check if lab column exists in sitin_sessions
+    cursor.execute("SHOW COLUMNS FROM sitin_sessions LIKE 'lab'")
+    lab_exists = cursor.fetchone() is not None
+    
+    # Add missing columns if needed
+    if not purpose_exists:
+        cursor.execute("ALTER TABLE sitin_sessions ADD COLUMN purpose VARCHAR(50)")
+    
+    if not lab_exists:
+        cursor.execute("ALTER TABLE sitin_sessions ADD COLUMN lab VARCHAR(50)")
+    
+    connection.commit()
+    connection.close()
+
+# Initialize the app
 if __name__ == '__main__':
+    check_and_update_schema()
     app.run(debug=True)
